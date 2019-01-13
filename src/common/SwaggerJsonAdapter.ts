@@ -1,5 +1,5 @@
 
-class Route {
+export class Route {
     name: String;
     value: String;
 
@@ -17,7 +17,7 @@ class Data {
     }
 }
 
-class EndPointSpecification {
+export class EndPointSpecification {
     data: Data;
 
     constructor(data: Data) {
@@ -25,25 +25,28 @@ class EndPointSpecification {
     }
 }
 
+interface Path {
+    key: string;
+    value: object
+}
+
+interface JsonSpec {
+    paths: Path[];
+}
+
 export class SwaggerAdapter {
 
-    createEndPointSpecification(): EndPointSpecification {
+    createEndPointSpecification(specPath : string): EndPointSpecification {
         var object : string[] = null;
         var fs = require("fs");
-        var swagger = fs.readFile("./swagger.json", function (err, data) {
-            if(err)
-                throw err;
+        var fileBuffer : Buffer = fs.readFileSync(specPath);
+        var jsonSpec : JsonSpec = JSON.parse(fileBuffer.toString());
+        var availablePaths = Object.keys(jsonSpec.paths);
 
-            object = JSON.parse(data).paths;
-        });
-
-        if(object == null)
-            throw Error("Swagger json specificaton not valid");
-
-        var routes  = new Route[object.length];
+        var routes : Route[]  = new Array(availablePaths.length);
         var routeIdx = 0;
-        object.forEach(e => {
-            routes[routeIdx++] = new Route(e,e);
+        availablePaths.forEach(e => {
+            routes[routeIdx++] = new Route(e.substr(1, e.length).replace('{', '').replace('}', '').split('/').join('.').toLowerCase(),e);
         });
 
         return new EndPointSpecification(new Data(routes));
