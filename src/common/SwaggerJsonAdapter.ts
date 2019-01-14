@@ -1,18 +1,7 @@
-
-export class Route {
-    name: String;
-    value: String;
-
-    constructor(name: String, value: String) {
-        this.name = name;
-        this.value = value;
-    }
-}
-
 class Data {
-    routes: Route[];
+    routes: object[];
 
-    constructor(routes: Route[]) {
+    constructor(routes: object[]) {
         this.routes = routes;
     }
 }
@@ -27,7 +16,7 @@ export class EndPointSpecification {
 
 interface Path {
     key: string;
-    value: object
+    value: object;
 }
 
 interface JsonSpec {
@@ -43,10 +32,11 @@ export class SwaggerAdapter {
         var jsonSpec : JsonSpec = JSON.parse(fileBuffer.toString());
         var availablePaths = Object.keys(jsonSpec.paths);
 
-        var routes : Route[]  = new Array(availablePaths.length);
+        var routes : object[]  = new Array(availablePaths.length);
         var routeIdx = 0;
         availablePaths.forEach(e => {
-            routes[routeIdx++] = new Route(e.substr(1, e.length).replace('{', '').replace('}', '').split('/').join('.').toLowerCase(),e);
+            var key = e.substr(1, e.length).replace('{', '').replace('}', '').split('/').join('.').toLowerCase();
+            routes[routeIdx++] = JSON.parse('{"'+key + '":"' + e + '"}');
         });
 
         return new EndPointSpecification(new Data(routes));

@@ -8,7 +8,8 @@ describe('Swagger Adapter Test Function', () => {
         var swaggerAdapter = new SwaggerAdapter();
         var endPointSpec : EndPointSpecification = swaggerAdapter.createEndPointSpecification('./swagger/swagger.json');
         expect(endPointSpec.data.routes.length).equal(14);
-        console.log(JSON.stringify(endPointSpec));
+        var fs = require('fs');
+        fs.writeFileSync("./swagger/generated/swagger-spec.json", JSON.stringify(endPointSpec));
     })
 
 });
